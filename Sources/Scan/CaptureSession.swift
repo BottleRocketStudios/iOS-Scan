@@ -65,6 +65,13 @@ public extension CaptureSession {
             $0.addInput(input.rawInput)
         }
     }
+
+    func addOutput(_ output: some CaptureOutput) {
+        guard captureSession.canAddOutput(output.rawOutput) else { return }
+        performConfigurationAction {
+            $0.addOutput(output.rawOutput)
+        }
+    }
 }
 
 // MARK: - Helper
