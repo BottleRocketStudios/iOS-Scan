@@ -23,7 +23,7 @@ struct ContentView: View {
 
         // MARK: - Initializer
         init(metadataObjectTypes: [MetadataCaptureOutput.ObjectType]) throws {
-            self.metadataCaptureSession = try .init(metadataTypes: metadataObjectTypes)
+            self.metadataCaptureSession = try .defaultVideo(capturing: metadataObjectTypes)
 
             Task {
                 for await metadataObject in metadataCaptureSession.outputStream {
@@ -66,25 +66,40 @@ struct ContentView: View {
             Color.black
                 .ignoresSafeArea()
 
-            CapturePreview(metadataCaptureSession: viewModel.metadataCaptureSession)
+            viewModel.metadataCaptureSession.capturePreview
                 .overlay {
                     GeometryReader { proxy in
                         if let placement = viewModel.recognizeObjectPlacement {
                             Rectangle()
+                                .cornerRadius(8)
                                 .position(x: placement.position.x, y: placement.position.y)
                                 .frame(width: placement.size.width, height: placement.size.height)
                                 .foregroundColor(.blue)
                                 .opacity(0.5)
                                 .animation(.default, value: placement)
+
                         }
                     }
                 }
                 .overlay(alignment: .bottom) {
                     if let urlString = viewModel.recognizedObject?.stringValue, let url = URL(string: urlString) {
-                        Toast(content: { Link(destination: url, label: { Label(urlString, systemImage: "safari.fill") }) },
+                        Toast(content: { toastContentView(for: url) },
                               backgroundColor: .white, isPresented: $isPresentingToast)
                     }
                 }
+        }
+    }
+
+    // MARK: -
+    private func toastContentView(for url: URL) -> some View {
+        Link(destination: url) {
+            HStack {
+                Image(systemName: "safari.fill")
+                    
+                Text(url.absoluteString)
+                    .font(.caption2.monospaced())
+            }
+
         }
     }
 }

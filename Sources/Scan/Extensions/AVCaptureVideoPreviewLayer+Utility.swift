@@ -15,7 +15,6 @@ public extension AVCaptureVideoPreviewLayer {
         self.videoGravity = videoGravity
     }
 
-
     struct Placement: Hashable {
 
         public struct Point: Hashable {

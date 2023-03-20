@@ -29,7 +29,6 @@ struct Toast<Content>: View where Content: View {
     var body: some View {
         content()
             .padding()
-            .padding([.leading, .trailing], 24)
             .clipShape(Capsule())
             .background(
                 Capsule()
@@ -56,10 +55,12 @@ extension Toast {
 
     private struct ModifiedLabel: View {
 
+        // MARK: - Properties
         let title: String
         let systemImage: String
         let backgroundColor: Color
 
+        // MARK: - View
         var body: some View {
             Label(title, systemImage: systemImage)
                 .font(.subheadline)

@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  CapturePreview.swift
 //  
 //
 //  Created by Will McGinty on 3/17/23.
@@ -14,10 +14,21 @@ public struct CapturePreview: UIViewRepresentable {
     // MARK: - CapturePreview.View
     public final class PreviewView: UIView {
 
+        var previewLayer: AVCaptureVideoPreviewLayer?
+
+        // MARK: - Interface
+        func insert(previewLayer newPreviewLayer: AVCaptureVideoPreviewLayer) {
+            defer { previewLayer = newPreviewLayer }
+
+            previewLayer?.removeFromSuperlayer()
+            layer.addSublayer(newPreviewLayer)
+        }
+
+        // MARK: - Lifecycle
         public override func layoutSubviews() {
             super.layoutSubviews()
 
-            if let previewLayer = layer.sublayers?.lazy.compactMap({ $0 as? AVCaptureVideoPreviewLayer }).first {
+            if let previewLayer {
                 previewLayer.frame = bounds
             }
         }
@@ -27,22 +38,20 @@ public struct CapturePreview: UIViewRepresentable {
     public let session: CaptureSession
     public let previewLayer: AVCaptureVideoPreviewLayer
 
-    // MARK: - Initializer
+    // MARK: - Initializers
     public init(session: CaptureSession, previewLayer: AVCaptureVideoPreviewLayer = .init()) {
         self.session = session
         self.previewLayer = previewLayer
     }
 
-    public init(metadataCaptureSession: MetadataCaptureSession) {
+    init(metadataCaptureSession: MetadataCaptureSession) {
         self.init(session: metadataCaptureSession.captureSession, previewLayer: metadataCaptureSession.previewLayer)
     }
 
     // MARK: - UIViewRepresentable
     public func makeUIView(context: Context) -> PreviewView {
         let view = PreviewView()
-
-        view.layer.addSublayer(previewLayer)
-        previewLayer.frame = view.bounds
+        view.insert(previewLayer: previewLayer)
         previewLayer.session = session.captureSession
 
         return view
