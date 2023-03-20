@@ -14,22 +14,11 @@ public struct CapturePreview: UIViewRepresentable {
     // MARK: - CapturePreview.View
     public final class PreviewView: UIView {
 
-//        public override class var layerClass: AnyClass {
-//            return AVCaptureVideoPreviewLayer.self
-//        }
-
-        // MARK: - Interface
-//        var videoPreviewLayer: AVCaptureVideoPreviewLayer { return layer as! AVCaptureVideoPreviewLayer }
-
-//        func transformedMetadataObject(for metadataObject: AVMetadataObject) -> AVMetadataObject? {
-//            return videoPreviewLayer.transformedMetadataObject(for: metadataObject)
-//        }
-
         public override func layoutSubviews() {
             super.layoutSubviews()
 
-            if let first = layer.sublayers?.first {
-                first.frame = bounds
+            if let previewLayer = layer.sublayers?.lazy.compactMap({ $0 as? AVCaptureVideoPreviewLayer }).first {
+                previewLayer.frame = bounds
             }
         }
     }
@@ -44,16 +33,17 @@ public struct CapturePreview: UIViewRepresentable {
         self.previewLayer = previewLayer
     }
 
+    public init(metadataCaptureSession: MetadataCaptureSession) {
+        self.init(session: metadataCaptureSession.captureSession, previewLayer: metadataCaptureSession.previewLayer)
+    }
+
     // MARK: - UIViewRepresentable
     public func makeUIView(context: Context) -> PreviewView {
         let view = PreviewView()
 
         view.layer.addSublayer(previewLayer)
         previewLayer.frame = view.bounds
-
-
         previewLayer.session = session.captureSession
-//        view.videoPreviewLayer.session = session.captureSession
 
         return view
     }

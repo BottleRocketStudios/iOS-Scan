@@ -16,75 +16,76 @@ struct ContentView: View {
     class ViewModel: ObservableObject {
 
         // MARK: - Properties
-        let authorizationService: CaptureAuthorizationService
-        let captureSession: CaptureSession
-        let previewLayer: AVCaptureVideoPreviewLayer
-        let metadataOutput: MetadataCaptureOutput
+        let metadataCaptureSession: MetadataCaptureSession
 
         @Published var recognizedObject: AVMetadataMachineReadableCodeObject?
+        private var clearTask: Task<Void, Error>?
 
         // MARK: - Initializer
-        init(capturingMediaType: MediaType) {
-            self.authorizationService = .init(requestedMediaType: capturingMediaType)
-            self.captureSession = CaptureSession(configuration: .init(preset: .high))
-            self.previewLayer = .init()
-            self.metadataOutput = MetadataCaptureOutput()
+        init(metadataObjectTypes: [MetadataCaptureOutput.ObjectType]) throws {
+            self.metadataCaptureSession = try .init(metadataTypes: metadataObjectTypes)
 
             Task {
-                guard let cameraInput = try? CameraCaptureInput.default(forCapturing: capturingMediaType) else { return }
-
-                await captureSession.addInput(cameraInput)
-                await captureSession.addOutput(metadataOutput)
-                metadataOutput.setMetadataObjectTypes([.qr])
-
-                await captureSession.startRunning()
-
-                for await object in metadataOutput.outputStream {
-                    guard let readable = object as? AVMetadataMachineReadableCodeObject else { continue }
-                    recognizedObject = readable
+                for await metadataObject in metadataCaptureSession.outputStream {
+                    if let readableObject = metadataObject as? AVMetadataMachineReadableCodeObject {
+                        setRecognizedObject(readableObject)
+                    }
                 }
+            }
+        }
+
+        // MARK: - Interface
+        func setRecognizedObject(_ object: AVMetadataMachineReadableCodeObject?) {
+            withAnimation {
+                recognizedObject = object
+            }
+
+            if recognizedObject != nil {
+                clearTask?.cancel()
+                clearTask = Task {
+                    try await Task.sleep(until: .now + .seconds(2), clock: .continuous)
+                    setRecognizedObject(nil)
+                }
+            }
+        }
+
+        var recognizeObjectPlacement: AVCaptureVideoPreviewLayer.Placement? {
+            return recognizedObject.flatMap {
+                metadataCaptureSession.transformedMetadataObjectPlacement(for: $0)
             }
         }
     }
 
     // MARK: - Properties
-    @StateObject var viewModel = ViewModel(capturingMediaType: .video)
-
-    // MARK: - Interface
-    private func recognizedObjectSize(in rect: CGRect) -> CGSize? {
-        guard let recognized = viewModel.recognizedObject,
-              let transformed = viewModel.previewLayer.transformedMetadataObject(for: recognized) else { return nil }
-
-        return transformed.bounds.size
-    }
-
-    private func recognizedObjectPosition(in rect: CGRect) -> CGPoint? {
-        guard let recognized = viewModel.recognizedObject,
-              let transformed = viewModel.previewLayer.transformedMetadataObject(for: recognized) else { return nil }
-
-        return CGPoint(x: transformed.bounds.midX, y: transformed.bounds.midY)
-    }
+    @StateObject private var viewModel = try! ViewModel(metadataObjectTypes: [.qr])
+    @State private var isPresentingToast: Bool = false
 
     // MARK: - View
     var body: some View {
-        CapturePreview(session: viewModel.captureSession, previewLayer: viewModel.previewLayer)
-           .task {
-               _ = await viewModel.authorizationService.requestAuthorization()
-           }
-           .overlay(alignment: .bottom) {
-               Text(viewModel.recognizedObject?.stringValue ?? "--")
-           }
-           .overlay {
-               GeometryReader { proxy in
-                   if let size = recognizedObjectSize(in: proxy.frame(in: .local)), let position = recognizedObjectPosition(in: proxy.frame(in: .local)) {
-                       Rectangle()
-                           .position(position)
-                           .frame(width: size.width, height: size.height)
-                           .foregroundColor(.blue)
-                           .opacity(0.5)
-                   }
-               }
-           }
+        ZStack {
+            Color.black
+                .ignoresSafeArea()
+
+            CapturePreview(metadataCaptureSession: viewModel.metadataCaptureSession)
+                .overlay {
+                    GeometryReader { proxy in
+                        if let placement = viewModel.recognizeObjectPlacement {
+                            Rectangle()
+                                .position(x: placement.position.x, y: placement.position.y)
+                                .frame(width: placement.size.width, height: placement.size.height)
+                                .foregroundColor(.blue)
+                                .opacity(0.5)
+                                .animation(.default, value: placement)
+                        }
+                    }
+                }
+                .overlay(alignment: .bottom) {
+                    if let urlString = viewModel.recognizedObject?.stringValue, let url = URL(string: urlString) {
+                        Toast(content: { Link(destination: url, label: { Label(urlString, systemImage: "safari.fill") }) },
+                              backgroundColor: .white, isPresented: $isPresentingToast)
+                    }
+                }
+        }
     }
 }
 

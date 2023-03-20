@@ -11,7 +11,6 @@ import AVFoundation
 public typealias AuthorizationStatus = AVAuthorizationStatus
 public typealias MediaType = AVMediaType
 
-@MainActor
 public class CaptureAuthorizationService: ObservableObject {
 
     // MARK: - Properties
