@@ -24,6 +24,11 @@ public class MetadataCaptureOutput: NSObject, CaptureOutput, AVCaptureMetadataOu
     public lazy var outputStream: AsyncStream<AVMetadataObject> = AsyncStream { self.outputContinuation = $0 }
     private var outputContinuation: AsyncStream<AVMetadataObject>.Continuation?
 
+    public var rectOfInterest: CGRect {
+        get { return captureOutput.rectOfInterest }
+        set { captureOutput.rectOfInterest = newValue }
+    }
+
     // MARK: - Initializer
     public override init() {
         self.captureOutput = .init()

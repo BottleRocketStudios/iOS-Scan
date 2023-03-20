@@ -13,6 +13,7 @@
 		0ED05E2E29C4C1C60025C389 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0ED05E2D29C4C1C60025C389 /* Preview Assets.xcassets */; };
 		0ED05E3629C4C20A0025C389 /* Scan in Frameworks */ = {isa = PBXBuildFile; productRef = 0ED05E3529C4C20A0025C389 /* Scan */; };
 		0ED05E3B29C8DAFC0025C389 /* Toast.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ED05E3A29C8DAFC0025C389 /* Toast.swift */; };
+		0ED05E5B29C90C7E0025C389 /* View+Size.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ED05E5A29C90C7E0025C389 /* View+Size.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -23,6 +24,7 @@
 		0ED05E2B29C4C1C60025C389 /* Example.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Example.entitlements; sourceTree = "<group>"; };
 		0ED05E2D29C4C1C60025C389 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		0ED05E3A29C8DAFC0025C389 /* Toast.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Toast.swift; sourceTree = "<group>"; };
+		0ED05E5A29C90C7E0025C389 /* View+Size.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "View+Size.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -59,6 +61,7 @@
 			children = (
 				0ED05E2529C4C1C40025C389 /* ExampleApp.swift */,
 				0ED05E2729C4C1C40025C389 /* ContentView.swift */,
+				0ED05E5A29C90C7E0025C389 /* View+Size.swift */,
 				0ED05E3A29C8DAFC0025C389 /* Toast.swift */,
 				0ED05E2929C4C1C60025C389 /* Assets.xcassets */,
 				0ED05E2B29C4C1C60025C389 /* Example.entitlements */,
@@ -158,6 +161,7 @@
 				0ED05E2829C4C1C40025C389 /* ContentView.swift in Sources */,
 				0ED05E3B29C8DAFC0025C389 /* Toast.swift in Sources */,
 				0ED05E2629C4C1C40025C389 /* ExampleApp.swift in Sources */,
+				0ED05E5B29C90C7E0025C389 /* View+Size.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -18,6 +18,9 @@ public class MetadataCaptureSession: ObservableObject {
     public let captureSession: CaptureSession
     public let metadataOutput: MetadataCaptureOutput
     public let previewLayer: AVCaptureVideoPreviewLayer
+    public var rectOfInterest: CGRect {
+        didSet { metadataOutput.rectOfInterest = rectOfInterest }
+    }
 
     public var outputStream: AsyncStream<AVMetadataObject> { return metadataOutput.outputStream }
 
@@ -29,6 +32,7 @@ public class MetadataCaptureSession: ObservableObject {
         self.captureSession = CaptureSession(configuration: captureSessionConfiguration)
         self.previewLayer = AVCaptureVideoPreviewLayer()
         self.metadataOutput = MetadataCaptureOutput()
+        self.rectOfInterest = metadataOutput.rectOfInterest
 
         Task {
             await captureSession.addInput(captureInput)
@@ -36,6 +40,9 @@ public class MetadataCaptureSession: ObservableObject {
             metadataOutput.setMetadataObjectTypes(metadataTypes)
 
             await captureSession.startRunning()
+
+            // TODO: This needs some further investigation as to how and when it should be set up
+            metadataOutput.rectOfInterest = rectOfInterest
         }
     }
 
@@ -54,5 +61,10 @@ public class MetadataCaptureSession: ObservableObject {
 
     public func transformedMetadataObjectPlacement(for object: AVMetadataObject) -> AVCaptureVideoPreviewLayer.Placement? {
         return previewLayer.transformedMetadataObjectPlacement(for: object)
+    }
+
+    public func set(rectOfInterest rect: CGRect) {
+        let convertedRect = previewLayer.metadataOutputRectConverted(fromLayerRect: rect)
+        rectOfInterest = convertedRect
     }
 }
