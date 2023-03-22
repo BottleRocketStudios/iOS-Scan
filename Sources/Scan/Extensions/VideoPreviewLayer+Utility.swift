@@ -1,5 +1,5 @@
 //
-//  AVCaptureVideoPreviewLayer+Utility.swift
+//  VideoPreviewLayer+Utility.swift
 //  
 //
 //  Created by Will McGinty on 3/17/23.
@@ -8,7 +8,7 @@
 import AVFoundation
 import Foundation
 
-public extension AVCaptureVideoPreviewLayer {
+public extension VideoPreviewLayer {
 
     convenience init(cameraSession: CaptureSession, videoGravity: AVLayerVideoGravity = .resizeAspectFill) {
         self.init(session: cameraSession.captureSession)
@@ -64,7 +64,7 @@ public extension AVCaptureVideoPreviewLayer {
         public let size: Size
     }
 
-    func transformedMetadataObjectPlacement(for object: AVMetadataObject) -> Placement? {
+    func transformedMetadataObjectPlacement(for object: MetadataObject) -> Placement? {
         return transformedMetadataObject(for: object).map {
             return .init(position: .init(x: $0.bounds.midX, y: $0.bounds.midY),
                          size: .init($0.bounds.size))

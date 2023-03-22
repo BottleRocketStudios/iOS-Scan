@@ -18,7 +18,7 @@ struct CodeScanView: View {
         // MARK: - Properties
         let metadataCaptureSession: MetadataCaptureSession
 
-        @Published var recognizedObject: AVMetadataMachineReadableCodeObject?
+        @Published var recognizedObject: MachineReadableMetadataObject?
         private var clearTask: Task<Void, Error>?
 
         // MARK: - Initializer
@@ -27,7 +27,7 @@ struct CodeScanView: View {
 
             Task {
                 for await metadataObject in metadataCaptureSession.outputStream {
-                    if let readableObject = metadataObject as? AVMetadataMachineReadableCodeObject {
+                    if let readableObject = metadataObject as? MachineReadableMetadataObject {
                         setRecognizedObject(readableObject)
                     }
                 }
@@ -35,7 +35,7 @@ struct CodeScanView: View {
         }
 
         // MARK: - Interface
-        func setRecognizedObject(_ object: AVMetadataMachineReadableCodeObject?) {
+        func setRecognizedObject(_ object: MachineReadableMetadataObject?) {
             withAnimation {
                 recognizedObject = object
             }
@@ -49,7 +49,7 @@ struct CodeScanView: View {
             }
         }
 
-        var recognizeObjectPlacement: AVCaptureVideoPreviewLayer.Placement? {
+        var recognizeObjectPlacement: VideoPreviewLayer.Placement? {
             return recognizedObject.flatMap {
                 metadataCaptureSession.transformedMetadataObjectPlacement(for: $0)
             }

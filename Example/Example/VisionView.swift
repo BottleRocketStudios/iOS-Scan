@@ -5,11 +5,9 @@
 //  Created by Will McGinty on 3/21/23.
 //
 
-import AVFoundation
 import SwiftUI
 import Scan
 import Vision
-import Algorithms
 
 struct VisionView: View {
     
@@ -33,7 +31,7 @@ struct VisionView: View {
             Task {
                 for await pixelBuffer in videoCaptureSession.outputStream {
                     let rectangleDetectionRequest = VNDetectRectanglesRequest()
-                    let paymentCardAspectRatio: Float = 85.60/53.98
+                    let paymentCardAspectRatio: Float = 85.6 / 53.98
                     rectangleDetectionRequest.minimumAspectRatio = paymentCardAspectRatio * 0.95
                     rectangleDetectionRequest.maximumAspectRatio = paymentCardAspectRatio * 1.10
 

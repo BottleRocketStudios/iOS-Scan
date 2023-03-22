@@ -19,7 +19,7 @@ public class VideoCaptureSession: ObservableObject {
     public let authorizationService: CaptureAuthorizationService
     public let captureSession: CaptureSession
     public let videoOutput: VideoCaptureOutput
-    public let previewLayer: AVCaptureVideoPreviewLayer
+    public let previewLayer: VideoPreviewLayer
 
     public var outputStream: AsyncStream<CVPixelBuffer> { return videoOutput.outputStream }
 
@@ -28,7 +28,7 @@ public class VideoCaptureSession: ObservableObject {
                 captureInput: CaptureInput) {
         self.authorizationService = .init(requestedMediaType: .video)
         self.captureSession = CaptureSession(configuration: captureSessionConfiguration)
-        self.previewLayer = AVCaptureVideoPreviewLayer(cameraSession: captureSession, videoGravity: .resizeAspect)
+        self.previewLayer = VideoPreviewLayer(cameraSession: captureSession, videoGravity: .resizeAspect)
         self.videoOutput = VideoCaptureOutput()
 
         Task {

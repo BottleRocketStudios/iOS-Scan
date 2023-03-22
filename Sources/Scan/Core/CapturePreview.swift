@@ -14,10 +14,10 @@ public struct CapturePreview: UIViewRepresentable {
     // MARK: - CapturePreview.View
     public final class PreviewView: UIView {
 
-        private(set) var previewLayer: AVCaptureVideoPreviewLayer?
+        private(set) var previewLayer: VideoPreviewLayer?
 
         // MARK: - Interface
-        func insert(previewLayer newPreviewLayer: AVCaptureVideoPreviewLayer) {
+        func insert(previewLayer newPreviewLayer: VideoPreviewLayer) {
             defer { previewLayer = newPreviewLayer }
 
             previewLayer?.removeFromSuperlayer()
@@ -36,10 +36,10 @@ public struct CapturePreview: UIViewRepresentable {
 
     // MARK: - Properties
     public let session: CaptureSession
-    public let previewLayer: AVCaptureVideoPreviewLayer
+    public let previewLayer: VideoPreviewLayer
 
     // MARK: - Initializers
-    public init(session: CaptureSession, previewLayer: AVCaptureVideoPreviewLayer = .init()) {
+    public init(session: CaptureSession, previewLayer: VideoPreviewLayer = .init()) {
         self.session = session
         self.previewLayer = previewLayer
     }

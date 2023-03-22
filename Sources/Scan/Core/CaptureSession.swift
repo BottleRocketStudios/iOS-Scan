@@ -8,8 +8,10 @@
 import AVFoundation
 
 // MARK: - Typeliases
+public typealias VideoPreviewLayer = AVCaptureVideoPreviewLayer
 public typealias CaptureConnection = AVCaptureConnection
 public typealias MetadataObject = AVMetadataObject
+public typealias MachineReadableMetadataObject = AVMetadataMachineReadableCodeObject
 
 public actor CaptureSession {
 

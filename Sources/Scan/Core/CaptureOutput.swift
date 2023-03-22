@@ -74,7 +74,7 @@ public class MetadataCaptureOutput: NSObject, CaptureOutput, AVCaptureMetadataOu
 
 
     // MARK: - AVCaptureMetadataOutputObjectsDelegate
-    public func metadataOutput(_ output: AVCaptureMetadataOutput, didOutput metadataObjects: [AVMetadataObject], from connection: AVCaptureConnection) {
+    public func metadataOutput(_ output: AVCaptureMetadataOutput, didOutput metadataObjects: [MetadataObject], from connection: CaptureConnection) {
         for metadataObject in metadataObjects {
             outputContinuation?.yield(metadataObject)
         }
@@ -146,7 +146,7 @@ public class VideoCaptureOutput: NSObject, CaptureOutput, AVCaptureVideoDataOutp
     public var rawOutput: AVCaptureOutput { return captureOutput }
 
     // MARK: - AVCaptureVideoDataOutputSampleBufferDelegate
-    public func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
+    public func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: CaptureConnection) {
         guard let pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) else { return }
 
         outputContinuation?.yield(pixelBuffer)
