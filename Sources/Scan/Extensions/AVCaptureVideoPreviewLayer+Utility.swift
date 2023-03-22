@@ -10,8 +10,13 @@ import Foundation
 
 public extension AVCaptureVideoPreviewLayer {
 
-    convenience init(cameraSession: CaptureSession, videoGravity: AVLayerVideoGravity = .resizeAspectFill) async {
+    convenience init(cameraSession: CaptureSession, videoGravity: AVLayerVideoGravity = .resizeAspectFill) {
         self.init(session: cameraSession.captureSession)
+        self.videoGravity = videoGravity
+    }
+
+    convenience init(videoGravity: AVLayerVideoGravity) {
+        self.init()
         self.videoGravity = videoGravity
     }
 
@@ -64,5 +69,11 @@ public extension AVCaptureVideoPreviewLayer {
             return .init(position: .init(x: $0.bounds.midX, y: $0.bounds.midY),
                          size: .init($0.bounds.size))
         }
+    }
+
+    func layerPlacement(forBoundingBox boundingBox: CGRect) -> Placement {
+        let layerRect = layerRectConverted(fromMetadataOutputRect: boundingBox)
+        return .init(position: .init(x: layerRect.midX, y: layerRect.midY),
+                     size: .init(layerRect.size))
     }
 }

@@ -7,6 +7,10 @@
 
 import AVFoundation
 
+// MARK: - Typeliases
+public typealias CaptureConnection = AVCaptureConnection
+public typealias MetadataObject = AVMetadataObject
+
 public actor CaptureSession {
 
     // MARK: - CaptureSession.Configuration

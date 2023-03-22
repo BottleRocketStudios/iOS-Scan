@@ -13,7 +13,9 @@
 		0ED05E2E29C4C1C60025C389 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0ED05E2D29C4C1C60025C389 /* Preview Assets.xcassets */; };
 		0ED05E3629C4C20A0025C389 /* Scan in Frameworks */ = {isa = PBXBuildFile; productRef = 0ED05E3529C4C20A0025C389 /* Scan */; };
 		0ED05E3B29C8DAFC0025C389 /* Toast.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ED05E3A29C8DAFC0025C389 /* Toast.swift */; };
-		0ED05E5B29C90C7E0025C389 /* View+Size.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ED05E5A29C90C7E0025C389 /* View+Size.swift */; };
+		0ED05E5D29CA03940025C389 /* CodeScanView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ED05E5C29CA03940025C389 /* CodeScanView.swift */; };
+		0ED05E5F29CA044F0025C389 /* VisionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ED05E5E29CA044F0025C389 /* VisionView.swift */; };
+		0ED05E6229CA50460025C389 /* Algorithms in Frameworks */ = {isa = PBXBuildFile; productRef = 0ED05E6129CA50460025C389 /* Algorithms */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -24,7 +26,8 @@
 		0ED05E2B29C4C1C60025C389 /* Example.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Example.entitlements; sourceTree = "<group>"; };
 		0ED05E2D29C4C1C60025C389 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		0ED05E3A29C8DAFC0025C389 /* Toast.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Toast.swift; sourceTree = "<group>"; };
-		0ED05E5A29C90C7E0025C389 /* View+Size.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "View+Size.swift"; sourceTree = "<group>"; };
+		0ED05E5C29CA03940025C389 /* CodeScanView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CodeScanView.swift; sourceTree = "<group>"; };
+		0ED05E5E29CA044F0025C389 /* VisionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisionView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -32,6 +35,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0ED05E6229CA50460025C389 /* Algorithms in Frameworks */,
 				0ED05E3629C4C20A0025C389 /* Scan in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -61,7 +65,8 @@
 			children = (
 				0ED05E2529C4C1C40025C389 /* ExampleApp.swift */,
 				0ED05E2729C4C1C40025C389 /* ContentView.swift */,
-				0ED05E5A29C90C7E0025C389 /* View+Size.swift */,
+				0ED05E5C29CA03940025C389 /* CodeScanView.swift */,
+				0ED05E5E29CA044F0025C389 /* VisionView.swift */,
 				0ED05E3A29C8DAFC0025C389 /* Toast.swift */,
 				0ED05E2929C4C1C60025C389 /* Assets.xcassets */,
 				0ED05E2B29C4C1C60025C389 /* Example.entitlements */,
@@ -103,6 +108,7 @@
 			name = Example;
 			packageProductDependencies = (
 				0ED05E3529C4C20A0025C389 /* Scan */,
+				0ED05E6129CA50460025C389 /* Algorithms */,
 			);
 			productName = Example;
 			productReference = 0ED05E2229C4C1C40025C389 /* Example.app */;
@@ -132,6 +138,9 @@
 				Base,
 			);
 			mainGroup = 0ED05E1929C4C1C40025C389;
+			packageReferences = (
+				0ED05E6029CA50460025C389 /* XCRemoteSwiftPackageReference "swift-algorithms" */,
+			);
 			productRefGroup = 0ED05E2329C4C1C40025C389 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -158,10 +167,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0ED05E5F29CA044F0025C389 /* VisionView.swift in Sources */,
 				0ED05E2829C4C1C40025C389 /* ContentView.swift in Sources */,
 				0ED05E3B29C8DAFC0025C389 /* Toast.swift in Sources */,
 				0ED05E2629C4C1C40025C389 /* ExampleApp.swift in Sources */,
-				0ED05E5B29C90C7E0025C389 /* View+Size.swift in Sources */,
+				0ED05E5D29CA03940025C389 /* CodeScanView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -382,10 +392,26 @@
 		};
 /* End XCConfigurationList section */
 
+/* Begin XCRemoteSwiftPackageReference section */
+		0ED05E6029CA50460025C389 /* XCRemoteSwiftPackageReference "swift-algorithms" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/apple/swift-algorithms.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
 /* Begin XCSwiftPackageProductDependency section */
 		0ED05E3529C4C20A0025C389 /* Scan */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = Scan;
+		};
+		0ED05E6129CA50460025C389 /* Algorithms */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 0ED05E6029CA50460025C389 /* XCRemoteSwiftPackageReference "swift-algorithms" */;
+			productName = Algorithms;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

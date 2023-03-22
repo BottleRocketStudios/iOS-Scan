@@ -25,12 +25,12 @@ public class MetadataCaptureSession: ObservableObject {
     public var outputStream: AsyncStream<AVMetadataObject> { return metadataOutput.outputStream }
 
     // MARK: - Initializer
-    public init(metadataTypes: [MetadataCaptureOutput.ObjectType],
+    public init(metadataTypes: [MetadataObject.ObjectType],
                 captureSessionConfiguration: CaptureSession.Configuration = .init(preset: .high),
                 captureInput: CaptureInput) {
         self.authorizationService = .init(requestedMediaType: .video)
         self.captureSession = CaptureSession(configuration: captureSessionConfiguration)
-        self.previewLayer = AVCaptureVideoPreviewLayer()
+        self.previewLayer = AVCaptureVideoPreviewLayer(cameraSession: captureSession, videoGravity: .resizeAspect)
         self.metadataOutput = MetadataCaptureOutput()
         self.rectOfInterest = metadataOutput.rectOfInterest
 
@@ -47,7 +47,7 @@ public class MetadataCaptureSession: ObservableObject {
     }
 
     // MARK: - Preset
-    public static func defaultVideo(capturing metadataTypes: [MetadataCaptureOutput.ObjectType],
+    public static func defaultVideo(capturing metadataTypes: [MetadataObject.ObjectType],
                                     captureSessionConfiguration: CaptureSession.Configuration = .init(preset: .high)) throws -> MetadataCaptureSession {
         guard let captureInput = try CameraCaptureInput.default(forCapturing: .video) else {
             throw Error.noDeviceAvailable
@@ -63,8 +63,7 @@ public class MetadataCaptureSession: ObservableObject {
         return previewLayer.transformedMetadataObjectPlacement(for: object)
     }
 
-    public func set(rectOfInterest rect: CGRect) {
-        let convertedRect = previewLayer.metadataOutputRectConverted(fromLayerRect: rect)
-        rectOfInterest = convertedRect
+    public func setViewRectOfInterest(_ rect: CGRect) {
+        rectOfInterest = previewLayer.metadataOutputRectConverted(fromLayerRect: rect)
     }
 }
