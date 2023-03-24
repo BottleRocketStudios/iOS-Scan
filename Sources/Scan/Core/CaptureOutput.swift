@@ -43,6 +43,16 @@ public extension CaptureOutput {
 
 public class MetadataCaptureOutput: NSObject, CaptureOutput, AVCaptureMetadataOutputObjectsDelegate {
 
+    public enum OutputTypes {
+        case allAvailable
+        case specific(types: [MetadataObject.ObjectType])
+
+        // MARK: - Initializer
+        public init(_ objectTypes: [MetadataObject.ObjectType]) {
+            self = .specific(types: objectTypes)
+        }
+    }
+
     // MARK: - Properties
     public let captureOutput: AVCaptureMetadataOutput
 
@@ -63,6 +73,15 @@ public class MetadataCaptureOutput: NSObject, CaptureOutput, AVCaptureMetadataOu
     public var rectOfInterest: CGRect {
         get { return captureOutput.rectOfInterest }
         set { captureOutput.rectOfInterest = newValue }
+    }
+
+    public func setMetadataObjectTypes(_ objectTypes: OutputTypes) {
+        switch objectTypes {
+        case .specific(types: let types): setMetadataObjectTypes(types)
+        case .allAvailable:
+            let availableTypes = availableMetadataObjectTypes
+            setMetadataObjectTypes(availableTypes)
+        }
     }
 
     public func setMetadataObjectTypes(_ objectTypes: [MetadataObject.ObjectType]) {

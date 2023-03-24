@@ -25,7 +25,7 @@ public class MetadataCaptureSession: ObservableObject {
     public var outputStream: AsyncStream<MetadataObject> { return metadataOutput.outputStream }
 
     // MARK: - Initializer
-    public init(metadataTypes: [MetadataObject.ObjectType],
+    public init(outputTypes: MetadataCaptureOutput.OutputTypes,
                 captureSessionConfiguration: CaptureSession.Configuration = .init(preset: .high),
                 captureInput: CaptureInput) {
         self.authorizationService = .init(requestedMediaType: .video)
@@ -37,7 +37,7 @@ public class MetadataCaptureSession: ObservableObject {
         Task {
             await captureSession.addInput(captureInput)
             await captureSession.addOutput(metadataOutput)
-            metadataOutput.setMetadataObjectTypes(metadataTypes)
+            metadataOutput.setMetadataObjectTypes(outputTypes)
 
             await captureSession.startRunning()
 
@@ -47,13 +47,13 @@ public class MetadataCaptureSession: ObservableObject {
     }
 
     // MARK: - Preset
-    public static func defaultVideo(capturing metadataTypes: [MetadataObject.ObjectType],
+    public static func defaultVideo(capturing outputTypes: MetadataCaptureOutput.OutputTypes,
                                     captureSessionConfiguration: CaptureSession.Configuration = .init(preset: .high)) throws -> MetadataCaptureSession {
         guard let captureInput = try CameraCaptureInput.default(forCapturing: .video) else {
             throw Error.noDeviceAvailable
         }
 
-        return MetadataCaptureSession(metadataTypes: metadataTypes, captureSessionConfiguration: captureSessionConfiguration, captureInput: captureInput)
+        return MetadataCaptureSession(outputTypes: outputTypes, captureSessionConfiguration: captureSessionConfiguration, captureInput: captureInput)
     }
 
     // MARK: - Interface

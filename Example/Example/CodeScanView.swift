@@ -22,7 +22,7 @@ struct CodeScanView: View {
         private var clearTask: Task<Void, Error>?
 
         // MARK: - Initializer
-        init(metadataObjectTypes: [MetadataObject.ObjectType]) throws {
+        init(metadataObjectTypes: MetadataCaptureOutput.OutputTypes) throws {
             self.metadataCaptureSession = try .defaultVideo(capturing: metadataObjectTypes)
 
             Task {
@@ -57,7 +57,7 @@ struct CodeScanView: View {
     }
 
     // MARK: - Properties
-    @StateObject private var viewModel = try! ViewModel(metadataObjectTypes: [.qr])
+    @StateObject private var viewModel = try! ViewModel(metadataObjectTypes: .allAvailable)
 
     @State private var isPresentingToast: Bool = false
     @State private var cutoutSize: CGSize = .zero
@@ -100,9 +100,9 @@ struct CodeScanView: View {
                     }
                 }
                 .overlay(alignment: .bottom) {
-                    if let urlString = viewModel.recognizedObject?.stringValue, let url = URL(string: urlString) {
-                        Toast(content: { toastContentView(for: url) }, backgroundColor: .white, isPresented: $isPresentingToast)
-                        .padding()
+                    if let recognizedObject = viewModel.recognizedObject {
+                        Toast(content: { toastContentView(for: recognizedObject) }, backgroundColor: .white, isPresented: $isPresentingToast)
+                            .padding()
                     }
                 }
         }
@@ -111,12 +111,25 @@ struct CodeScanView: View {
     }
 
     // MARK: - Subviews
-    private func toastContentView(for url: URL) -> some View {
-        Link(destination: url) {
-            HStack {
-                Image(systemName: "safari.fill")
-                Text(url.absoluteString)
+    private func toastContentView(for metadataObject: MachineReadableMetadataObject) -> some View {
+        Group {
+            if let stringValue = metadataObject.stringValue {
+                if metadataObject.type == .qr || metadataObject.type == .microQR, let url = URL(string: stringValue) {
+                    Link(destination: url) {
+                        HStack {
+                            Image(systemName: "qrcode")
+                            Text(url.absoluteString)
+                                .font(.caption2.monospaced())
+                        }
+                    }
+                } else {
+                    HStack {
+                        Text(metadataObject.type.rawValue.components(separatedBy: ".").last ?? "")
+                            .foregroundColor(.secondary)
+                        Text(stringValue)
+                    }
                     .font(.caption2.monospaced())
+                }
             }
         }
     }
