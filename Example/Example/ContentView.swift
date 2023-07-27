@@ -14,6 +14,7 @@ struct ContentView: View {
     enum Destination {
         case codeScan
         case cardScan
+        case test
     }
 
     // MARK: - View
@@ -21,14 +22,15 @@ struct ContentView: View {
         NavigationStack {
             List {
                 NavigationLink("Code Scanning", value: Destination.codeScan)
-                NavigationLink("Card Scan", value: Destination.cardScan)
+                NavigationLink("Card Finder", value: Destination.cardScan)
+                NavigationLink("Test", value: Destination.test)
             }
             .navigationTitle("Examples")
             .navigationDestination(for: Destination.self) { destination in
                 switch destination {
                 case .codeScan: CodeScanView()
                 case .cardScan: VisionView()
-
+                case .test: TestView()
                 }
             }
         }

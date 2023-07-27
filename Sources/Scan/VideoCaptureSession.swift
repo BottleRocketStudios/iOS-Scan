@@ -9,6 +9,10 @@ import Foundation
 import AVFoundation
 import Vision
 
+/*
+ https://machinethink.net/blog/bounding-boxes/
+ */
+
 public class VideoCaptureSession: ObservableObject {
 
     enum Error: Swift.Error {
@@ -28,7 +32,7 @@ public class VideoCaptureSession: ObservableObject {
                 captureInput: CaptureInput) {
         self.authorizationService = .init(requestedMediaType: .video)
         self.captureSession = CaptureSession(configuration: captureSessionConfiguration)
-        self.previewLayer = VideoPreviewLayer(cameraSession: captureSession, videoGravity: .resizeAspect)
+        self.previewLayer = VideoPreviewLayer(cameraSession: captureSession)
         self.videoOutput = VideoCaptureOutput()
 
         Task {
@@ -36,6 +40,7 @@ public class VideoCaptureSession: ObservableObject {
             await captureSession.addOutput(videoOutput)
 
             if let videoConnection = videoOutput.connection(with: .video), videoConnection.isVideoOrientationSupported {
+                debugPrint("Setting videoOrientation to .portrait")
                 videoConnection.videoOrientation = .portrait
             }
 
@@ -57,5 +62,14 @@ public class VideoCaptureSession: ObservableObject {
 
     public func transformedViewRect(forNormalizedBoundingBox boundingBox: CGRect) -> CGRect {
         return VNImageRectForNormalizedRect(boundingBox, Int(previewLayer.bounds.width), Int(previewLayer.bounds.height))
+    }
+
+    public func transformedPlacement(forNormalizedBoundingBox boundingBox: CGRect) -> Placement {
+        let flippedBox = CGRect(x: boundingBox.origin.x, y: 1 - boundingBox.origin.y, width: boundingBox.height, height: boundingBox.width)
+        let converted = CGRect(x: flippedBox.origin.x * previewLayer.frame.size.width, y: flippedBox.origin.y * previewLayer.frame.size.height,
+                               width: boundingBox.width * previewLayer.frame.size.width, height: boundingBox.height * previewLayer.frame.size.height)
+//        let viewRect = transformedViewRect(forNormalizedBoundingBox: flippedBox)
+//        let converted = previewLayer.layerRectConverted(fromMetadataOutputRect: boundingBox)
+        return .init(converted)
     }
 }

@@ -15,7 +15,7 @@ public protocol CaptureOutput {
     var connections: [CaptureConnection] { get }
     func connection(with mediaType: MediaType) -> CaptureConnection?
 
-    func transformedMetadataObject(for metadataObject: MetadataObject, connection: CaptureConnection) -> MetadataObject?
+    func transformedMetadataObject(for metadataObject: AVMetadataObject, connection: CaptureConnection) -> AVMetadataObject?
     func metadataOutputRectConverted(fromOutputRect rect: CGRect) -> CGRect
     func outputRectConverted(fromMetadataOutputRect rect: CGRect) -> CGRect
 }
@@ -28,7 +28,7 @@ public extension CaptureOutput {
         return rawOutput.connection(with: mediaType)
     }
 
-    func transformedMetadataObject(for metadataObject: MetadataObject, connection: CaptureConnection) -> MetadataObject? {
+    func transformedMetadataObject(for metadataObject: AVMetadataObject, connection: CaptureConnection) -> AVMetadataObject? {
         return rawOutput.transformedMetadataObject(for: metadataObject, connection: connection)
     }
 
@@ -45,10 +45,10 @@ public class MetadataCaptureOutput: NSObject, CaptureOutput, AVCaptureMetadataOu
 
     public enum OutputTypes {
         case allAvailable
-        case specific(types: [MetadataObject.ObjectType])
+        case specific(types: [MetadataObject.Kind])
 
         // MARK: - Initializer
-        public init(_ objectTypes: [MetadataObject.ObjectType]) {
+        public init(_ objectTypes: [MetadataObject.Kind]) {
             self = .specific(types: objectTypes)
         }
     }
@@ -68,7 +68,7 @@ public class MetadataCaptureOutput: NSObject, CaptureOutput, AVCaptureMetadataOu
     }
 
     // MARK: - Interface
-    public var availableMetadataObjectTypes: [MetadataObject.ObjectType] { return captureOutput.availableMetadataObjectTypes }
+    public var availableMetadataObjectTypes: [MetadataObject.Kind] { return captureOutput.availableMetadataObjectTypes }
 
     public var rectOfInterest: CGRect {
         get { return captureOutput.rectOfInterest }
@@ -84,7 +84,7 @@ public class MetadataCaptureOutput: NSObject, CaptureOutput, AVCaptureMetadataOu
         }
     }
 
-    public func setMetadataObjectTypes(_ objectTypes: [MetadataObject.ObjectType]) {
+    public func setMetadataObjectTypes(_ objectTypes: [MetadataObject.Kind]) {
         captureOutput.metadataObjectTypes = objectTypes
     }
 
@@ -93,9 +93,11 @@ public class MetadataCaptureOutput: NSObject, CaptureOutput, AVCaptureMetadataOu
 
 
     // MARK: - AVCaptureMetadataOutputObjectsDelegate
-    public func metadataOutput(_ output: AVCaptureMetadataOutput, didOutput metadataObjects: [MetadataObject], from connection: CaptureConnection) {
+    public func metadataOutput(_ output: AVCaptureMetadataOutput, didOutput metadataObjects: [AVMetadataObject], from connection: CaptureConnection) {
         for metadataObject in metadataObjects {
-            outputContinuation?.yield(metadataObject)
+            if let processedObject = MetadataObject(metadataObject) {
+                outputContinuation?.yield(processedObject)
+            }
         }
     }
 }

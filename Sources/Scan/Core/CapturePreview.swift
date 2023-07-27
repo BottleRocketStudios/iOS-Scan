@@ -39,7 +39,7 @@ public struct CapturePreview: UIViewRepresentable {
     public let previewLayer: VideoPreviewLayer
 
     // MARK: - Initializers
-    public init(session: CaptureSession, previewLayer: VideoPreviewLayer = .init()) {
+    public init(session: CaptureSession, previewLayer: VideoPreviewLayer = .init(videoGravity: .resizeAspectFill)) {
         self.session = session
         self.previewLayer = previewLayer
     }

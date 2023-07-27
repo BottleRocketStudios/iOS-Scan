@@ -10,7 +10,6 @@ import AVFoundation
 // MARK: - Typeliases
 public typealias VideoPreviewLayer = AVCaptureVideoPreviewLayer
 public typealias CaptureConnection = AVCaptureConnection
-public typealias MetadataObject = AVMetadataObject
 public typealias MachineReadableMetadataObject = AVMetadataMachineReadableCodeObject
 
 public actor CaptureSession {
@@ -49,9 +48,39 @@ public actor CaptureSession {
     @available(iOS 16.0, *)
     public var hardwareCost: Float { return captureSession.hardwareCost }
 
-    public var usesApplicationAudioSession: Bool { return captureSession.usesApplicationAudioSession }
-    public var automaticallyConfiguresApplicationAudioSession: Bool { return captureSession.automaticallyConfiguresApplicationAudioSession }
-    public var automaticallyConfiguresCaptureDeviceForWideColor: Bool { return captureSession.automaticallyConfiguresCaptureDeviceForWideColor }
+    @available(iOS 16.0, *)
+    public var isMultitaskingCameraAccessSupported: Bool {
+        return captureSession.isMultitaskingCameraAccessSupported
+    }
+
+    @available(iOS 16.0, *)
+    public var isMultitaskingCameraAccessEnabled: Bool {
+        get { return captureSession.isMultitaskingCameraAccessEnabled }
+        set { captureSession.isMultitaskingCameraAccessEnabled = newValue }
+    }
+
+    public var usesApplicationAudioSession: Bool {
+        get { return captureSession.usesApplicationAudioSession }
+        set { captureSession.usesApplicationAudioSession = newValue }
+    }
+
+    public var automaticallyConfiguresApplicationAudioSession: Bool {
+        get { return captureSession.automaticallyConfiguresApplicationAudioSession }
+        set { captureSession.automaticallyConfiguresApplicationAudioSession = newValue }
+    }
+
+    public var automaticallyConfiguresCaptureDeviceForWideColor: Bool {
+        get { return captureSession.automaticallyConfiguresCaptureDeviceForWideColor }
+        set { captureSession.automaticallyConfiguresCaptureDeviceForWideColor = newValue }
+    }
+
+    public func beginConfiguration() {
+        captureSession.beginConfiguration()
+    }
+
+    public func commitConfiguration() {
+        captureSession.commitConfiguration()
+    }
 
     public func startRunning() {
         captureSession.startRunning()
@@ -62,20 +91,40 @@ public actor CaptureSession {
     }
 }
 
-// MARK: - Inputs
+// MARK: - Inputs and Outputs
 public extension CaptureSession {
 
+    func canAddInput(_ input: some CaptureInput) -> Bool {
+        return captureSession.canAddInput(input.rawInput)
+    }
+
     func addInput(_ input: some CaptureInput) {
-        guard captureSession.canAddInput(input.rawInput) else { return }
-        performConfigurationAction {
+        guard canAddInput(input) else { return }
+        performConfiguration {
             $0.addInput(input.rawInput)
         }
     }
 
+    func removeInput(_ input: some CaptureInput) {
+        performConfiguration {
+            $0.removeInput(input.rawInput)
+        }
+    }
+
+    func canAddOutput(_ output: some CaptureOutput) -> Bool {
+        return captureSession.canAddOutput(output.rawOutput)
+    }
+
     func addOutput(_ output: some CaptureOutput) {
-        guard captureSession.canAddOutput(output.rawOutput) else { return }
-        performConfigurationAction {
+        guard canAddOutput(output) else { return }
+        performConfiguration {
             $0.addOutput(output.rawOutput)
+        }
+    }
+
+    func removeOutput(_ output: some CaptureOutput) {
+        performConfiguration {
+            $0.removeOutput(output.rawOutput)
         }
     }
 }
@@ -88,9 +137,9 @@ private extension CaptureSession {
         captureSession.sessionPreset = sessionPreset
     }
 
-    func performConfigurationAction(_ configuration: (AVCaptureSession) -> Void) {
-        captureSession.beginConfiguration()
+    func performConfiguration(_ configuration: (AVCaptureSession) -> Void) {
+        beginConfiguration()
         configuration(captureSession)
-        captureSession.commitConfiguration()
+        commitConfiguration()
     }
 }

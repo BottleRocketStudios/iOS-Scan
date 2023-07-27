@@ -7,7 +7,6 @@
 
 import AVFoundation
 
-// MARK: - CameraAuthorizationService.AuthorizationStatus
 public typealias AuthorizationStatus = AVAuthorizationStatus
 public typealias MediaType = AVMediaType
 

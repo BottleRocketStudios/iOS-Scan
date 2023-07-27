@@ -30,7 +30,7 @@ public class MetadataCaptureSession: ObservableObject {
                 captureInput: CaptureInput) {
         self.authorizationService = .init(requestedMediaType: .video)
         self.captureSession = CaptureSession(configuration: captureSessionConfiguration)
-        self.previewLayer = VideoPreviewLayer(cameraSession: captureSession, videoGravity: .resizeAspect)
+        self.previewLayer = VideoPreviewLayer(cameraSession: captureSession)
         self.metadataOutput = MetadataCaptureOutput()
         self.rectOfInterest = metadataOutput.rectOfInterest
 
@@ -41,7 +41,6 @@ public class MetadataCaptureSession: ObservableObject {
 
             await captureSession.startRunning()
 
-            // TODO: This needs some further investigation as to how and when it should be set up
             metadataOutput.rectOfInterest = rectOfInterest
         }
     }
@@ -59,11 +58,15 @@ public class MetadataCaptureSession: ObservableObject {
     // MARK: - Interface
     public var capturePreview: CapturePreview { return .init(session: captureSession, previewLayer: previewLayer) }
 
-    public func transformedMetadataObjectPlacement(for object: MetadataObject) -> VideoPreviewLayer.Placement? {
+    public func setViewRectOfInterest(_ rect: CGRect) {
+        rectOfInterest = previewLayer.metadataOutputRectConverted(fromLayerRect: rect)
+    }
+
+    public func transformedMetadataObjectPlacement(for object: AVMetadataObject) -> Placement? {
         return previewLayer.transformedMetadataObjectPlacement(for: object)
     }
 
-    public func setViewRectOfInterest(_ rect: CGRect) {
-        rectOfInterest = previewLayer.metadataOutputRectConverted(fromLayerRect: rect)
+    public func layerPlacement(forBoundingBox boundingBox: CGRect) -> Placement {
+        return previewLayer.layerPlacement(forBoundingBox: boundingBox)
     }
 }

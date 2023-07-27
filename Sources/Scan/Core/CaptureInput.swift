@@ -19,9 +19,13 @@ public class CameraCaptureInput: CaptureInput {
     // MARK: - Properties
     public let captureInput: AVCaptureDeviceInput
 
-    // MARK: - Initializer
+    // MARK: - Initializers
     public init(captureInput: AVCaptureDeviceInput) {
         self.captureInput = captureInput
+    }
+
+    public convenience init(captureDevice: CaptureDevice) throws {
+        try self.init(captureInput: .init(device: captureDevice.device))
     }
 
     // MARK: - CaptureInput
@@ -31,28 +35,15 @@ public class CameraCaptureInput: CaptureInput {
 // MARK: - Preset
 public extension CameraCaptureInput {
 
-    typealias DeviceType = AVCaptureDevice.DeviceType
-    typealias Position = AVCaptureDevice.Position
-
     static func `default`(forCapturing mediaType: MediaType) throws -> CameraCaptureInput? {
-        return try AVCaptureDevice.default(for: mediaType).flatMap {
-            let captureInput = try AVCaptureDeviceInput(device: $0)
-            return CameraCaptureInput(captureInput: captureInput)
-        }
+        return try CaptureDevice.default(forCapturing: mediaType).flatMap(CameraCaptureInput.init)
     }
 
-    static func `default`(of type: DeviceType, forCapturing mediaType: MediaType?, position: Position) throws -> CameraCaptureInput? {
-        return try AVCaptureDevice.default(type, for: mediaType, position: position).flatMap {
-            let captureInput = try AVCaptureDeviceInput(device: $0)
-            return CameraCaptureInput(captureInput: captureInput)
-        }
+    static func `default`(of kind: CaptureDevice.Kind, forCapturing mediaType: MediaType?, position: CaptureDevice.Position) throws -> CameraCaptureInput? {
+        return try CaptureDevice.default(of: kind, forCapturing: mediaType, position: position).flatMap(CameraCaptureInput.init)
     }
 
-    static func inputOptions(forDeviceTypes types: [DeviceType], forCapturing mediaType: MediaType?, position: Position) throws -> [CameraCaptureInput] {
-        let discoverySession = AVCaptureDevice.DiscoverySession(deviceTypes: types, mediaType: mediaType, position: position)
-        return try discoverySession.devices.compactMap {
-            let captureInput = try AVCaptureDeviceInput(device: $0)
-            return CameraCaptureInput(captureInput: captureInput)
-        }
+    static func inputDevices(ofKinds kinds: [CaptureDevice.Kind], forCapturing mediaType: MediaType?, position: CaptureDevice.Position) throws -> [CameraCaptureInput] {
+        return try CaptureDevice.devices(ofKinds: kinds, forCapturing: mediaType, position: position).compactMap(CameraCaptureInput.init)
     }
 }

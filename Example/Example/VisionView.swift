@@ -16,105 +16,98 @@ struct VisionView: View {
     class ViewModel: ObservableObject {
         
         // MARK: - Properties
-        let videoCaptureSession: VideoCaptureSession
+        let videoCaptureSession: VideoCaptureSession?
         private let requestHandler = VNSequenceRequestHandler()
         
         @Published var pixelBufferSize: CGSize?
         @Published var previewLayerFrame: CGRect?
         @Published var recognizedObjectRect: CGRect?
-        @Published var processedObjectRect: CGRect?
+        @Published var processedObjectPlacement: Placement?
         
         // MARK: - Initializer
-        init() throws {
-            self.videoCaptureSession = try .defaultVideo()
-            
-            Task {
-                for await pixelBuffer in videoCaptureSession.outputStream {
-                    let rectangleDetectionRequest = VNDetectRectanglesRequest()
-                    let paymentCardAspectRatio: Float = 85.6 / 53.98
-                    rectangleDetectionRequest.minimumAspectRatio = paymentCardAspectRatio * 0.95
-                    rectangleDetectionRequest.maximumAspectRatio = paymentCardAspectRatio * 1.10
+        init() {
+            self.videoCaptureSession = try? .defaultVideo()
 
-                    let textDetectionRequest = VNDetectTextRectanglesRequest()
-                    
-                    self.pixelBufferSize = .init(width: CVPixelBufferGetWidth(pixelBuffer), height: CVPixelBufferGetHeight(pixelBuffer))
-                    self.previewLayerFrame = videoCaptureSession.previewLayer.frame
-                    
-                    try? requestHandler.perform([rectangleDetectionRequest, textDetectionRequest], on: pixelBuffer)
+            if let videoCaptureSession {
+                Task {
+                    for await pixelBuffer in videoCaptureSession.outputStream {
+                        let rectangleDetectionRequest = VNDetectRectanglesRequest()
+                        let paymentCardAspectRatio: Float = 85.6 / 53.98
+                        rectangleDetectionRequest.minimumAspectRatio = paymentCardAspectRatio * 0.90
+                        rectangleDetectionRequest.maximumAspectRatio = paymentCardAspectRatio * 1.10
 
-                    guard let recognizedRectangle = rectangleDetectionRequest.results?.sorted(by: { $0.confidence < $1.confidence }).first(where: { rectangleObservation in
-                        return textDetectionRequest.results?.contains { rectangleObservation.boundingBox.contains($0.boundingBox) } ?? false
-                    }) else {
-                        self.recognizedObjectRect = nil
-                        self.processedObjectRect = nil
-                        continue
+                        let textDetectionRequest = VNDetectTextRectanglesRequest()
+
+                        self.pixelBufferSize = .init(width: CVPixelBufferGetWidth(pixelBuffer), height: CVPixelBufferGetHeight(pixelBuffer))
+                        self.previewLayerFrame = videoCaptureSession.previewLayer.frame
+
+                        try? requestHandler.perform([rectangleDetectionRequest, textDetectionRequest], on: pixelBuffer)
+
+                        guard let recognizedRectangle = rectangleDetectionRequest.results?.sorted(by: { $0.confidence < $1.confidence }).first(where: { rectangleObservation in
+                            return textDetectionRequest.results?.contains { rectangleObservation.boundingBox.contains($0.boundingBox) } ?? false
+                        }) else {
+                            self.recognizedObjectRect = nil
+                            self.processedObjectPlacement = nil
+                            continue
+                        }
+
+                        let processedPlacement = videoCaptureSession.transformedPlacement(forNormalizedBoundingBox: recognizedRectangle.boundingBox)
+                        self.processedObjectPlacement = processedPlacement
+                        self.recognizedObjectRect = recognizedRectangle.boundingBox
                     }
-                    
-                    let processedRect = videoCaptureSession.transformedViewRect(forNormalizedBoundingBox: recognizedRectangle.boundingBox)
-                    self.recognizedObjectRect = recognizedRectangle.boundingBox
-                    self.processedObjectRect = processedRect
                 }
             }
         }
     }
     
     // MARK: - Properties
-    @StateObject private var viewModel = try! ViewModel()
+    @StateObject private var viewModel = ViewModel()
     
     // MARK: - View
     var body: some View {
         ZStack {
-            Color.black
-                .ignoresSafeArea(edges: .bottom)
-
-            viewModel.videoCaptureSession.capturePreview
-                .overlay {
-                    GeometryReader { proxy in
-                        if let rect = viewModel.processedObjectRect {
-                            Rectangle()
-                                .cornerRadius(8)
-                                .foregroundColor(.green.opacity(0.5))
-                                .border(Color.green, width: 2)
-                                .position(x: rect.midX, y: rect.midY)
-                                .frame(width: rect.width, height: rect.height)
-                                .animation(.default, value: rect)
-                        }
-                    }
-                }
-                .overlay(alignment: .top) {
-                    if viewModel.pixelBufferSize != nil || viewModel.previewLayerFrame != nil || viewModel.recognizedObjectRect != nil || viewModel.processedObjectRect != nil {
-                        VStack {
-                            if let bufferSize = viewModel.pixelBufferSize {
-                                text(for: bufferSize, label: "Buffer Size")
-                                    .animation(nil, value: bufferSize)
-                            }
-
-                            if let previewFrame = viewModel.previewLayerFrame {
-                                text(for: previewFrame, label: "Preview")
-                                    .animation(nil, value: previewFrame)
-                            }
-
-                            if let recognized = viewModel.recognizedObjectRect {
-                                text(for: recognized, label: "Recognized")
-                                    .animation(nil, value: recognized)
-                            }
-
-                            if let processed = viewModel.processedObjectRect {
-                                text(for: processed, label: "Processed")
-                                    .animation(nil, value: processed)
+            if let videoCaptureSession = viewModel.videoCaptureSession {
+                videoCaptureSession.capturePreview
+                    .overlay {
+                        GeometryReader { proxy in
+                            if let placement = viewModel.processedObjectPlacement {
+                                Rectangle()
+                                    .cornerRadius(8)
+                                    .foregroundColor(.blue.opacity(0.5))
+                                    .border(Color.green, width: 2)
+                                    .placement(placement)
+                                    .animation(.default, value: placement)
                             }
                         }
-                        .font(.caption)
-                        .padding()
-                        .background(Material.regular)
-                        .cornerRadius(12)
-                        .padding()
-                        .animation(.default, value: viewModel.pixelBufferSize)
-                        .animation(.default, value: viewModel.previewLayerFrame)
-                        .animation(.default, value: viewModel.recognizedObjectRect)
-                        .animation(.default, value: viewModel.processedObjectRect)
                     }
-                }
+                    .ignoresSafeArea(edges: .bottom)
+                    .overlay(alignment: .bottom) {
+                        if viewModel.pixelBufferSize != nil || viewModel.previewLayerFrame != nil
+                            || viewModel.recognizedObjectRect != nil || viewModel.processedObjectPlacement != nil {
+                            VStack {
+                                if let pixelBufferSize = viewModel.pixelBufferSize {
+                                    text(for: pixelBufferSize, label: "Pixel Buffer")
+                                }
+
+                                if let previewLayerFrame = viewModel.previewLayerFrame {
+                                    text(for: previewLayerFrame, label: "Preview Layer")
+                                }
+
+                                if let recognizedObjectRect = viewModel.recognizedObjectRect {
+                                    text(for: recognizedObjectRect, label: "Recognized Object")
+                                }
+
+                                if let processedObjectPlacement = viewModel.processedObjectPlacement {
+                                    text(for: processedObjectPlacement, label: "Processed Object")
+                                }
+                            }
+                            .font(.caption)
+                            .padding()
+                            .background(Material.ultraThin)
+                            .cornerRadius(12)
+                        }
+                    }
+            }
         }
         .navigationTitle("Vision")
         .navigationBarTitleDisplayMode(.inline)
@@ -126,6 +119,10 @@ private extension VisionView {
     
     func text(for rect: CGRect, with formatStyle: FloatingPointFormatStyle<CGFloat> = .init().precision(.fractionLength(0...1)), label: String) -> some View {
         Text("\(label) X: \(rect.minX.formatted(formatStyle)) Y: \(rect.minY.formatted(formatStyle)) Width: \(rect.width.formatted(formatStyle)) Height: \(rect.height.formatted(formatStyle))")
+    }
+
+    func text(for placement: Placement, with formatStyle: FloatingPointFormatStyle<CGFloat> = .init().precision(.fractionLength(0...1)), label: String) -> some View {
+        Text("\(label) X: \(placement.center.x.formatted(formatStyle)) Y: \(placement.center.y.formatted(formatStyle)) Width: \(placement.size.width.formatted(formatStyle)) Height: \(placement.size.height.formatted(formatStyle))")
     }
     
     func text(for size: CGSize, with formatStyle: FloatingPointFormatStyle<CGFloat> = .init().precision(.fractionLength(0...1)), label: String) -> some View {
