@@ -27,10 +27,11 @@ public class MetadataCaptureSession: ObservableObject {
     // MARK: - Initializer
     public init(outputTypes: MetadataCaptureOutput.OutputTypes,
                 captureSessionConfiguration: CaptureSession.Configuration = .init(preset: .high),
-                captureInput: CaptureInput) {
+                captureInput: CaptureInput,
+                previewVideoGravity: AVLayerVideoGravity = .resizeAspect) {
         self.authorizationService = .init(requestedMediaType: .video)
         self.captureSession = CaptureSession(configuration: captureSessionConfiguration)
-        self.previewLayer = VideoPreviewLayer(cameraSession: captureSession, videoGravity: .resizeAspect)
+        self.previewLayer = VideoPreviewLayer(cameraSession: captureSession, videoGravity: previewVideoGravity)
         self.metadataOutput = MetadataCaptureOutput()
         self.rectOfInterest = metadataOutput.rectOfInterest
 
@@ -48,12 +49,13 @@ public class MetadataCaptureSession: ObservableObject {
 
     // MARK: - Preset
     public static func defaultVideo(capturing outputTypes: MetadataCaptureOutput.OutputTypes,
-                                    captureSessionConfiguration: CaptureSession.Configuration = .init(preset: .high)) throws -> MetadataCaptureSession {
+                                    captureSessionConfiguration: CaptureSession.Configuration = .init(preset: .high),
+                                    previewVideoGravity: AVLayerVideoGravity = .resizeAspect) throws -> MetadataCaptureSession {
         guard let captureInput = try CameraCaptureInput.default(forCapturing: .video) else {
             throw Error.noDeviceAvailable
         }
 
-        return MetadataCaptureSession(outputTypes: outputTypes, captureSessionConfiguration: captureSessionConfiguration, captureInput: captureInput)
+        return MetadataCaptureSession(outputTypes: outputTypes, captureSessionConfiguration: captureSessionConfiguration, captureInput: captureInput, previewVideoGravity: previewVideoGravity)
     }
 
     // MARK: - Interface

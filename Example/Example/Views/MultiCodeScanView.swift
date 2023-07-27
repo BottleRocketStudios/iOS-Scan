@@ -11,7 +11,7 @@ import Scan
 
 struct MultiCodeScanView: View {
 
-    // MARK: - CodeScanView.ViewModel
+    // MARK: - MultiCodeScanView.ViewModel
     @MainActor
     class ViewModel: ObservableObject {
 
@@ -37,7 +37,7 @@ struct MultiCodeScanView: View {
 
         // MARK: - Initializer
         init(metadataObjectTypes: MetadataCaptureOutput.OutputTypes) throws {
-            self.metadataCaptureSession = try .defaultVideo(capturing: metadataObjectTypes)
+            self.metadataCaptureSession = try .defaultVideo(capturing: metadataObjectTypes, previewVideoGravity: .resizeAspectFill)
 
             Task {
                 for await metadataObject in metadataCaptureSession.outputStream {
@@ -97,10 +97,8 @@ struct MultiCodeScanView: View {
     // MARK: - View
     var body: some View {
         ZStack {
-            Color.black
-                .ignoresSafeArea(edges: .bottom)
-
             viewModel.metadataCaptureSession.capturePreview
+                .ignoresSafeArea(edges: .bottom)
                 .overlay {
                     GeometryReader { proxy in
                         ZStack {

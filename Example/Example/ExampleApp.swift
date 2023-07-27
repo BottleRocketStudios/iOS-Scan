@@ -26,18 +26,43 @@ struct ContentView: View {
         case multiCodeScan
     }
 
+    @State private var isPresentingCodeScanning: Bool = false
+    @State private var isPresentingMultiCodeScanning: Bool = false
+
     // MARK: - View
     var body: some View {
         NavigationStack {
             List {
                 NavigationLink("Code Scanning", value: Destination.codeScan)
                 NavigationLink("Multi Code Scanning", value: Destination.multiCodeScan)
+
+                Section {
+                    Button("Code Scanning Sheet") {
+                        isPresentingCodeScanning.toggle()
+                    }
+
+                    Button("Multi Code Scanning Sheet") {
+                        isPresentingMultiCodeScanning.toggle()
+                    }
+                }
             }
             .navigationTitle("Examples")
             .navigationDestination(for: Destination.self) { destination in
                 switch destination {
                 case .codeScan: CodeScanView()
                 case .multiCodeScan: MultiCodeScanView()
+                }
+            }
+            .sheet(isPresented: $isPresentingCodeScanning) {
+                NavigationStack {
+                    CodeScanView()
+                        .navigationTitle("Code Scanning")
+                }
+            }
+            .sheet(isPresented: $isPresentingMultiCodeScanning) {
+                NavigationStack {
+                    MultiCodeScanView()
+                        .navigationTitle("Multi Code Scanning")
                 }
             }
         }

@@ -23,7 +23,7 @@ struct CodeScanView: View {
 
         // MARK: - Initializer
         init(metadataObjectTypes: MetadataCaptureOutput.OutputTypes) throws {
-            self.metadataCaptureSession = try .defaultVideo(capturing: metadataObjectTypes)
+            self.metadataCaptureSession = try .defaultVideo(capturing: metadataObjectTypes, previewVideoGravity: .resizeAspectFill)
 
             Task {
                 for await metadataObject in metadataCaptureSession.outputStream {
@@ -74,16 +74,16 @@ struct CodeScanView: View {
     // MARK: - View
     var body: some View {
         ZStack {
-            Color.black
-                .ignoresSafeArea(edges: .bottom)
-
             viewModel.metadataCaptureSession.capturePreview
+                .ignoresSafeArea(edges: .bottom)
                 .overlay {
                     GeometryReader { proxy in
-                        Color.black
-                            .opacity(0.5)
-                            .clipShape(CutoutRoundedRectangle(cutoutSize: cutoutSize), style: FillStyle(eoFill: true))
-                            .task { updateCutoutSize(in: proxy.frame(in: .local)) }
+                        ZStack {
+                            Color.black
+                                .opacity(0.5)
+                                .clipShape(CutoutRoundedRectangle(cutoutSize: cutoutSize), style: FillStyle(eoFill: true))
+                                .onChange(of: proxy.size) { _ in updateCutoutSize(in: proxy.frame(in: .local)) }
+                        }.ignoresSafeArea(edges: .bottom)
                     }
                 }
                 .overlay {
