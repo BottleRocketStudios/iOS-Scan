@@ -104,7 +104,6 @@ struct MultiCodeScanView: View {
                         ZStack {
                             ForEach(viewModel.recognizedObjects) { object in
                                 if let placement = viewModel.recognizeObjectPlacement(for: object) {
-
                                     Rectangle()
                                         .cornerRadius(8)
                                         .foregroundStyle(.green.opacity(0.5))
