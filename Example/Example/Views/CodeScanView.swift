@@ -11,7 +11,7 @@ import Scan
 
 struct CodeScanView: View {
 
-    // MARK: - ContentView.ViewModel
+    // MARK: - CodeScanView.ViewModel
     @MainActor
     class ViewModel: ObservableObject {
 
@@ -91,7 +91,7 @@ struct CodeScanView: View {
                         if let placement = viewModel.recognizeObjectPlacement {
                             Rectangle()
                                 .cornerRadius(8)
-                                .foregroundColor(.green.opacity(0.5))
+                                .foregroundStyle(.green.opacity(0.5))
                                 .border(Color.green, width: 2)
                                 .position(x: placement.position.x, y: placement.position.y)
                                 .frame(width: placement.size.width, height: placement.size.height)
@@ -101,7 +101,7 @@ struct CodeScanView: View {
                 }
                 .overlay(alignment: .bottom) {
                     if let recognizedObject = viewModel.recognizedObject {
-                        Toast(content: { toastContentView(for: recognizedObject) }, backgroundColor: .white, isPresented: $isPresentingToast)
+                        Toast(content: { toastContentView(for: recognizedObject) }, backgroundStyle: .background, isPresented: $isPresentingToast)
                             .padding()
                     }
                 }
@@ -120,6 +120,7 @@ struct CodeScanView: View {
                             Image(systemName: "qrcode")
                             Text(url.absoluteString)
                                 .font(.caption2.monospaced())
+                                .lineLimit(1)
                         }
                     }
                 } else {
