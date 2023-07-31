@@ -82,6 +82,7 @@ struct CodeScanView: View {
                             Color.black
                                 .opacity(0.5)
                                 .clipShape(CutoutRoundedRectangle(cutoutSize: cutoutSize), style: FillStyle(eoFill: true))
+                                .task { updateCutoutSize(in: proxy.frame(in: .local)) }
                                 .onChange(of: proxy.size) { _ in updateCutoutSize(in: proxy.frame(in: .local)) }
                         }.ignoresSafeArea(edges: .bottom)
                     }
