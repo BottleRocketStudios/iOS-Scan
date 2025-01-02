@@ -22,6 +22,7 @@ struct ContentView: View {
 
     // MARK: - ContentView.Destination
     enum Destination {
+        case camera
         case codeScan
         case multiCodeScan
     }
@@ -35,6 +36,7 @@ struct ContentView: View {
             List {
                 NavigationLink("Code Scanning", value: Destination.codeScan)
                 NavigationLink("Multi Code Scanning", value: Destination.multiCodeScan)
+                NavigationLink("Camera", value: Destination.camera)
 
                 Section {
                     Button("Code Scanning Sheet") {
@@ -49,6 +51,7 @@ struct ContentView: View {
             .navigationTitle("Examples")
             .navigationDestination(for: Destination.self) { destination in
                 switch destination {
+                case .camera: CameraView()
                 case .codeScan: CodeScanView()
                 case .multiCodeScan: MultiCodeScanView()
                 }

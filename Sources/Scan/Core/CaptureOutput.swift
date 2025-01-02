@@ -171,3 +171,62 @@ public class VideoCaptureOutput: NSObject, CaptureOutput, AVCaptureVideoDataOutp
         outputContinuation?.yield(pixelBuffer)
     }
 }
+
+public class PhotoCaptureOutput: NSObject, CaptureOutput, AVCapturePhotoCaptureDelegate {
+
+    // MARK: - Properties
+    public let captureOutput: AVCapturePhotoOutput
+
+    public lazy var outputStream: AsyncStream<Data> = AsyncStream { self.outputContinuation = $0 }
+    private var outputContinuation: AsyncStream<Data>.Continuation?
+
+    private var photoSettings: AVCapturePhotoSettings?
+
+    // MARK: - Initializer
+    public override init() {
+        self.captureOutput = AVCapturePhotoOutput()
+        super.init()
+    }
+
+    // MARK: - Interface
+    public func configurePhotoSettings(format: [String: Any]? = nil, isHighResolution: Bool = false) {
+        let settings = AVCapturePhotoSettings(format: format)
+        self.photoSettings = settings
+    }
+
+    public func capturePhoto() {
+        let settings = photoSettings ?? AVCapturePhotoSettings()
+        captureOutput.capturePhoto(with: settings, delegate: self)
+    }
+
+    public var isLivePhotoCaptureSupported: Bool {
+        return captureOutput.isLivePhotoCaptureSupported
+    }
+
+    public var isLivePhotoCaptureEnabled: Bool {
+        get { return captureOutput.isLivePhotoCaptureEnabled }
+        set { captureOutput.isLivePhotoCaptureEnabled = newValue }
+    }
+
+    public var flashMode: AVCaptureDevice.FlashMode {
+        get { return photoSettings?.flashMode ?? .off }
+        set {
+            let settings = photoSettings ?? AVCapturePhotoSettings()
+            settings.flashMode = newValue
+            self.photoSettings = settings
+        }
+    }
+
+    // MARK: - CaptureOutput
+    public var rawOutput: AVCaptureOutput { return captureOutput }
+
+    // MARK: - AVCapturePhotoCaptureDelegate
+    public func photoOutput(_ output: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: Swift.Error?) {
+        guard let data = photo.fileDataRepresentation() else {
+            debugPrint("Error capturing photo.", String(describing: error?.localizedDescription))
+            outputContinuation?.finish(); return
+        }
+
+        outputContinuation?.yield(data)
+    }
+}
