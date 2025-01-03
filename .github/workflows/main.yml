@@ -1,0 +1,39 @@
+name: Main
+
+on:
+  push:
+    branches: [ main, release/*]
+  pull_request:
+
+jobs:
+  Build:
+    runs-on: macos-15
+    env:
+      workspace: "Scan.xcworkspace"
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Build and Test
+      run: >
+          xcodebuild \
+            -workspace Scan.xcworkspace \
+            -scheme "Example" \
+            -destination "platform=iOS Simulator,OS=18.0,name=iPhone 16 Pro" \
+            ONLY_ACTIVE_ARCH=NO || exit 1
+
+  Lint:
+    runs-on: macos-15
+    env:
+      spm: true
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Lint
+      run: >
+        if [[ ${{ env.spm }} == true ]]; then
+          swift package describe
+        fi
