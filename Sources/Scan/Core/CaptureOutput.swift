@@ -188,7 +188,7 @@ public class PhotoCaptureOutput: NSObject, CaptureOutput, AVCapturePhotoCaptureD
     }
 
     // MARK: - Interface
-    public func configurePhotoSettings(format: [String: Any]? = nil, isHighResolution: Bool = false) {
+    public func configurePhotoSettings(format: [String: Any]?) {
         let settings = AVCapturePhotoSettings(format: format)
         self.photoSettings = settings
     }
