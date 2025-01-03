@@ -20,9 +20,8 @@ struct CameraView: View {
 
         // MARK: - Initializer
         init() throws {
-            self.photoCaptureSession = try .defaultFrontFacingPhoto(captureSessionConfiguration: .init(preset: .photo), previewVideoGravity: .resizeAspectFill)
-
-//                .defaultPhoto(captureSessionConfiguration: .init(preset: .photo), previewVideoGravity: .resizeAspectFill)
+            self.photoCaptureSession = try
+                .defaultPhoto(captureSessionConfiguration: .init(preset: .photo), previewVideoGravity: .resizeAspectFill)
 
             Task {
                 for await photo in photoCaptureSession.outputStream {

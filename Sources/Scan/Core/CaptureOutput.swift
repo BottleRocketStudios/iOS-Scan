@@ -176,11 +176,10 @@ public class PhotoCaptureOutput: NSObject, CaptureOutput, AVCapturePhotoCaptureD
 
     // MARK: - Properties
     public let captureOutput: AVCapturePhotoOutput
+    public var photoSettings: AVCapturePhotoSettings = .init()
 
     public lazy var outputStream: AsyncStream<Data> = AsyncStream { self.outputContinuation = $0 }
     private var outputContinuation: AsyncStream<Data>.Continuation?
-
-    private var photoSettings: AVCapturePhotoSettings?
 
     // MARK: - Initializer
     public override init() {
@@ -195,8 +194,9 @@ public class PhotoCaptureOutput: NSObject, CaptureOutput, AVCapturePhotoCaptureD
     }
 
     public func capturePhoto() {
-        let settings = photoSettings ?? AVCapturePhotoSettings()
-        captureOutput.capturePhoto(with: settings, delegate: self)
+        let currentPhotoSettings = photoSettings
+        captureOutput.capturePhoto(with: currentPhotoSettings, delegate: self)
+        self.photoSettings = .init(from: currentPhotoSettings)
     }
 
     public var isLivePhotoCaptureSupported: Bool {
@@ -209,12 +209,13 @@ public class PhotoCaptureOutput: NSObject, CaptureOutput, AVCapturePhotoCaptureD
     }
 
     public var flashMode: AVCaptureDevice.FlashMode {
-        get { return photoSettings?.flashMode ?? .off }
-        set {
-            let settings = photoSettings ?? AVCapturePhotoSettings()
-            settings.flashMode = newValue
-            self.photoSettings = settings
-        }
+        get { return photoSettings.flashMode }
+        set { photoSettings.flashMode = newValue }
+    }
+
+    public var photoQualityPrioriziation: AVCapturePhotoOutput.QualityPrioritization {
+        get { return photoSettings.photoQualityPrioritization }
+        set { photoSettings.photoQualityPrioritization = newValue }
     }
 
     // MARK: - CaptureOutput
